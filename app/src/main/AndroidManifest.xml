@@ -17,6 +17,13 @@
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.ThreadsExample">
+        </activity>
+
+        <activity
+            android:name=".countdowntimer.CountDownActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.ThreadsExample">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

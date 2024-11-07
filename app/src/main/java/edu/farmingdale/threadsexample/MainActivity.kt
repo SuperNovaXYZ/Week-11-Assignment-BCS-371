@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import edu.farmingdale.threadsexample.countdowntimer.CountDownActivity
 import edu.farmingdale.threadsexample.ui.theme.ThreadsExampleTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,7 +21,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ThreadsExampleTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting("Android", Modifier.padding(innerPadding))
+                    FibonacciDemoNoBgThrd()
                 }
             }
         }
