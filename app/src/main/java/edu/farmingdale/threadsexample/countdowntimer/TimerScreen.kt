@@ -63,7 +63,6 @@ fun TimerScreen(
     }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        // Circular progress indicator to show timer progress
         Box(
             modifier = modifier
                 .padding(20.dp)
