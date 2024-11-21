@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,33 +35,63 @@ import java.text.DecimalFormat
 import java.util.Locale
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import android.media.ToneGenerator
+import android.media.AudioManager
 
 @Composable
 fun TimerScreen(
     modifier: Modifier = Modifier,
     timerViewModel: TimerViewModel = viewModel()
 ) {
+    val progress = if (timerViewModel.totalMillis > 0) {
+        timerViewModel.remainingMillis.toFloat() / timerViewModel.totalMillis
+    } else {
+        1f
+    }
+
+    val isLast10Seconds = timerViewModel.remainingMillis <= 10000 && timerViewModel.remainingMillis > 0
+
+    val textColor = if (isLast10Seconds) Color.Red else Color.Black
+    val fontWeight = if (isLast10Seconds) FontWeight.Bold else FontWeight.Normal
+
+    val toneGenerator = remember { ToneGenerator(AudioManager.STREAM_MUSIC, 100) }
+
+    LaunchedEffect(timerViewModel.remainingMillis) {
+        if (timerViewModel.remainingMillis <= 0) {
+            toneGenerator.startTone(ToneGenerator.TONE_DTMF_C, 500)
+        }
+    }
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        // Circular progress indicator to show timer progress
         Box(
             modifier = modifier
                 .padding(20.dp)
-                .size(240.dp),
+                .size(245.dp),
             contentAlignment = Alignment.Center
         ) {
-            if (timerViewModel.isRunning) {
+            CircularProgressIndicator(
+                progress = progress,
+                strokeWidth = 12.dp,
+                color = if (timerViewModel.isRunning) Color.Green else Color.Gray,
+                modifier = Modifier.size(200.dp)
+            )
 
-            }
             Text(
                 text = timerText(timerViewModel.remainingMillis),
-                fontSize = 40.sp,
+                fontSize = 60.sp,
+                color = textColor,
+                fontWeight = fontWeight
             )
         }
+
         TimePicker(
             hour = timerViewModel.selectedHour,
             min = timerViewModel.selectedMinute,
             sec = timerViewModel.selectedSecond,
             onTimePick = timerViewModel::selectTime
         )
+
         if (timerViewModel.isRunning) {
             Button(
                 onClick = timerViewModel::cancelTimer,
@@ -70,14 +101,16 @@ fun TimerScreen(
             }
         } else {
             Button(
-                enabled = timerViewModel.selectedHour +
-                        timerViewModel.selectedMinute +
-                        timerViewModel.selectedSecond > 0,
+                enabled = timerViewModel.selectedHour + timerViewModel.selectedMinute + timerViewModel.selectedSecond > 0,
                 onClick = timerViewModel::startTimer,
                 modifier = modifier.padding(top = 50.dp)
             ) {
                 Text("Start")
             }
+        }
+
+        Button(onClick = timerViewModel::resetTimer) {
+            Text("Reset")
         }
     }
 }

@@ -72,4 +72,12 @@ class TimerViewModel : ViewModel() {
         super.onCleared()
         timerJob?.cancel()
     }
+
+    fun resetTimer() {
+        timerJob?.cancel()
+        timerJob = null
+        isRunning = false
+        remainingMillis = 0L
+        totalMillis = 0L
+    }
 }

@@ -3,6 +3,7 @@ package edu.farmingdale.threadsexample.countdowntimer
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.media.AudioManager
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -10,6 +11,11 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import edu.farmingdale.threadsexample.R
 import kotlinx.coroutines.delay
+import android.media.MediaPlayer
+import android.media.ToneGenerator
+import android.os.Handler
+import android.os.Looper
+import kotlin.time.Duration.Companion.milliseconds
 
 const val CHANNEL_ID_TIMER = "channel_timer"
 const val NOTIFICATION_ID = 0
@@ -17,23 +23,18 @@ const val KEY_MILLIS_REMAINING = 2000
 
 class TimerWorker(context: Context, parameters: WorkerParameters) :
     CoroutineWorker(context, parameters) {
-
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     override suspend fun doWork(): Result {
-        // Get remaining milliseconds from MainActivity
         var remainingMillis = inputData.getLong(KEY_MILLIS_REMAINING.toString(), 0)
 
-        // Can't continue without remaining time
         if (remainingMillis == 0L) {
             return Result.failure()
         }
 
-        // Create notification channel for all notifications
         createTimerNotificationChannel()
 
-        // Post notifications every second until no time remains
         while (remainingMillis > 0) {
             postTimerNotification(timerText(remainingMillis))
             delay(1000)
@@ -42,6 +43,9 @@ class TimerWorker(context: Context, parameters: WorkerParameters) :
 
         // Post final notification
         postTimerNotification("Timer is finished!")
+
+
+
 
         return Result.success()
     }
@@ -74,4 +78,11 @@ class TimerWorker(context: Context, parameters: WorkerParameters) :
 
         Log.d("TimerWorker", text)
     }
+
+    private fun timerText(timeInMillis: Long): String {
+        val duration = timeInMillis.milliseconds
+        return String.format("%02d:%02d:%02d",
+            duration.inWholeHours, duration.inWholeMinutes % 60, duration.inWholeSeconds % 60)
+    }
+
 }
